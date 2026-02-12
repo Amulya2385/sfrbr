@@ -11,7 +11,7 @@ It models how recovery policies behave when compute, memory, and cost budgets ar
 
 > Under bounded compute, does robustness enlarge the stability region — or destabilize the system?
 
-SFR-BR answers this by:
+SFR-BR answers this through:
 
 - Deterministic recovery execution
 - Hardware-aware cost accounting
@@ -24,16 +24,15 @@ SFR-BR answers this by:
 
 # 🧠 Core Components
 
-- RecoveryExecutor (bounded recovery)
-- Hardware Constraint Vector (HCV)
-- CostSimulator
-- Latent KV-cache corruption
-- Deterministic detection delay
-- Elastic budget awareness (CostState)
-- Stability phase experiments
-- Theoretical stability inequality solver
+- **RecoveryExecutor** — bounded recovery execution engine  
+- **Hardware Constraint Vector (HCV)** — cost + infrastructure model  
+- **CostSimulator** — explicit cost accounting  
+- **Latent KV-cache corruption model**  
+- **Deterministic detection delay**  
+- **Stability phase experiment framework**  
+- **Theoretical stability inequality solver**
 
-All experiments are fully deterministic and reproducible.
+All experiments are deterministic and reproducible.
 
 ---
 
@@ -71,9 +70,9 @@ Regions where robustness expands or shrinks stability:
 
 Legend:
 
-- Green → Robust expands stability
-- Red → Robust shrinks stability
-- Gray → Equal stability
+- Green → Robust expands stability  
+- Red → Robust shrinks stability  
+- Gray → Equal stability  
 
 ---
 
@@ -83,11 +82,11 @@ Maximum stable depth per hardware cap:
 
 ![Stability Boundary](figures/stability_boundary.png)
 
-This figure shows:
+This figure overlays:
 
-- Empirical Cheap boundary
-- Empirical Robust boundary
-- Theoretical predicted boundary
+- Empirical Cheap boundary  
+- Empirical Robust boundary  
+- Theoretical predicted boundary  
 
 ---
 
@@ -95,15 +94,17 @@ This figure shows:
 
 We derive a sufficient stability inequality:
 
+```
 c_a · D + k · (D + 1/p) · log(D + 1/p) < C
+```
 
 Where:
 
-- D = Context depth
-- C = Hard cost cap
-- c_a = Action cost coefficient
-- k = KV recompute coefficient
-- p = Detection probability
+- `D` = Context depth  
+- `C` = Hard cost cap  
+- `c_a` = Action cost coefficient  
+- `k` = KV recompute coefficient  
+- `p` = Detection probability  
 
 A numerical solver estimates theoretical collapse depth and compares it against empirical boundaries.
 
@@ -111,14 +112,14 @@ A numerical solver estimates theoretical collapse depth and compares it against 
 
 # 📊 Final Empirical Results
 
-From final stability sweep:
+From the final stability sweep:
 
-- Total grid points: 56
-- Cheap stable points: 6
-- Robust stable points: 32
-- Cheap stability ratio: 10.7%
-- Robust stability ratio: 57.1%
-- Net stability expansion: +26 regions
+- Total grid points: **56**
+- Cheap stable points: **6**
+- Robust stable points: **32**
+- Cheap stability ratio: **10.7%**
+- Robust stability ratio: **57.1%**
+- Net stability expansion: **+26 regions**
 
 Robustness significantly enlarges the stability region under bounded compute in this configuration.
 
@@ -126,57 +127,61 @@ Robustness significantly enlarges the stability region under bounded compute in 
 
 # 🏗️ Project Structure
 
+```
 SFR_BR_PROJECT/
 │
-├── agent/ # Agent policies (Cheap, Robust)
-├── harness/ # Execution engine & cost modeling
-├── experiments/ # Stability phase experiments
-├── analysis/ # Boundary extraction & theory solver
-├── plots/ # Publication-quality plot generators
-├── config/ # System parameters
-├── figures/ # Generated figures (PNG + PDF)
-├── main.py # Final experiment runner
+├── agent/        # Agent policies (Cheap, Robust)
+├── harness/      # Execution engine & cost modeling
+├── experiments/  # Stability phase experiments
+├── analysis/     # Boundary extraction & theory solver
+├── plots/        # Publication-quality plot generators
+├── config/       # System parameters
+├── figures/      # Generated figures (PNG + PDF)
+├── main.py       # Final experiment runner
 └── README.md
+```
 
 ---
 
 # ▶️ Running the Project
 
-Install dependencies:
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
-Run final experiment:
+```
 
+### Run final experiment
+
+```bash
 python main.py
-
+```
 
 Figures will be generated and saved inside:
 
+```
 figures/
+```
 
-🔁 Determinism & Reproducibility
+---
 
-Fixed random seed
+# 🔁 Determinism & Reproducibility
 
-Deterministic detection delay
+- Fixed random seed
+- Deterministic detection delay
+- Explicit hardware cap enforcement
+- No black-box API calls
+- Fully replayable experiments
 
-Explicit hardware cap enforcement
+---
 
-No black-box API calls
-
-Fully replayable experiments
-
-🎯 Contribution
+# 🎯 Contribution
 
 SFR-BR provides:
 
-A stability phase diagram for stateful recovery
-
-A differential stability comparison (Cheap vs Robust)
-
-Empirical collapse boundaries
-
-Theoretical boundary validation
+- A stability phase diagram for stateful recovery  
+- Differential stability comparison (Cheap vs Robust)  
+- Empirical collapse boundaries  
+- Theoretical boundary validation  
 
 This framework formalizes when robustness improves stability — and when bounded compute induces collapse.
