@@ -1,0 +1,24 @@
+[
+  {
+    "agent_name": "Agent A (Cheap)",
+    "recovery_success": false,
+    "recovery_cost": 190.0,
+    "dti": null,
+    "hard_cap_hit": false,
+    "semantic_drift_detected": false
+  },
+  {
+    "agent_name": "Agent B (Robust)",
+    "recovery_success": false,
+    "recovery_cost": 205.0,
+    "dti": null,
+    "hard_cap_hit": true,
+    "semantic_drift_detected": false
+  },
+  {
+    "agent_name": "FLEET",
+    "srv": 150.0,
+    "fleet_steps": 10,
+    "determinism_pass": true
+  }
+]
