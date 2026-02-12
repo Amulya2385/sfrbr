@@ -1,203 +1,195 @@
-# SFR-BR  
-## Stability of Stateful Recovery under Bounded Resources  
-### Technical Documentation
+# SFR-BR Documentation  
+## Stability of Stateful Recovery under Bounded Resources
 
 ---
 
-# 1. System Overview
+# 1. Executive Summary
 
-SFR-BR is a deterministic systems framework for analyzing the stability of stateful recovery under bounded hardware constraints.
+SFR-BR is a deterministic benchmark framework for evaluating **stateful recovery policies under bounded hardware constraints**.
 
-The system evaluates how different recovery policies behave when:
+It models how AI agents behave when recovering from latent state corruption while operating under strict compute and memory budgets.
 
-- Compute budgets are limited
-- KV-cache recomputation is costly
-- Latent corruption occurs
-- Detection of corruption is delayed
+The framework extends beyond simple recovery testing and introduces:
 
-The core objective is to map **stability regions** in the space of:
+- Stability phase diagrams
+- Differential stability comparison (Cheap vs Robust)
+- Empirical collapse boundary extraction
+- Theoretical stability inequality validation
+
+SFR-BR formalizes when robustness enlarges the stability region — and when bounded compute induces collapse.
+
+---
+
+# 2. Problem Definition
+
+Modern AI systems assume:
+
+- Infinite compute
+- Instant detection
+- Unlimited recomputation
+
+In reality:
+
+- Compute is capped
+- Memory is bounded
+- Detection is delayed
+- Recovery consumes resources
+
+This raises a systems question:
+
+> Under bounded compute, does robustness enlarge stability — or destabilize the system?
+
+SFR-BR answers this through deterministic experimentation.
+
+---
+
+# 3. System Architecture
+
+The framework consists of four layers:
+
+---
+
+## 3.1 Agent Layer
+
+Implements recovery policies:
+
+- `BaseAgent` (Cheap strategy)
+- `RobustAgent` (Expanded recovery strategy)
+
+Agents receive:
+
+- Current state
+- CostState (remaining budget awareness)
+
+Agents output deterministic `Action` objects.
+
+---
+
+## 3.2 Harness Layer
+
+Core execution engine:
+
+- `RecoveryExecutor`
+- `CostSimulator`
+- `HardwareConstraintVector (HCV)`
+- `CostState`
+- `Snapshot`
+
+Responsibilities:
+
+- Budget enforcement
+- Hard cap detection
+- KV recompute charging
+- Deterministic execution
+
+---
+
+## 3.3 Failure Model
+
+Latent corruption model:
+
+- KV cache poisoning
+- No immediate detection
+- Deterministic detection delay
+- Recompute cost charged on detection
+
+Detection lag is explicitly modeled via:
+
+```
+maybe_detect(detection_probability)
+```
+
+---
+
+## 3.4 Stability Classification
+
+Each experiment grid point is classified as:
+
+- Stable (recovery succeeds within cap)
+- HardCap Failure (budget exhausted)
+
+This classification enables phase analysis.
+
+---
+
+# 4. Stability Phase Framework
+
+We sweep across:
 
 - Context Depth (D)
 - Hard Cost Cap (C)
 
-and determine whether robust recovery policies enlarge or shrink stable operating regions.
+Each (D, C) pair is evaluated deterministically.
+
+Outputs:
+
+- Stability surface (per agent)
+- Differential stability map
+- Empirical boundary curves
 
 ---
 
-# 2. Formal Problem Definition
+## 4.1 Stability Surface
 
-We define a stateful recovery system with:
-
-- Context depth: `D`
-- Hard cost cap: `C`
-- Action cost coefficient: `cₐ`
-- KV recompute coefficient: `k`
-- Detection probability: `p`
-
-At each step:
-
-1. The agent performs recovery actions.
-2. Costs are charged through a hardware-aware cost model.
-3. If total cost exceeds `C`, recovery collapses.
-4. Latent corruption may trigger delayed recomputation.
-
-The central question:
-
-> Under bounded compute, does robustness enlarge the stability region or induce earlier collapse?
-
----
-
-# 3. Stability Definition
-
-A grid point (D, C) is classified as **Stable** if:
-
-- Recovery completes successfully  
-- No hard cap violation occurs  
-- Semantic consistency is preserved  
-
-Formally:
+For each agent:
 
 ```
-Stable ⇔
-RecoverySuccess
-∧ (TotalCost ≤ C)
-∧ (No Semantic Drift)
+Depth × Cap → Stable / Collapse
 ```
 
-Otherwise, the point is classified as:
-
-- HardCap Failure
-- Logical Drift
-- Budget Exhaustion
+Produces a phase diagram showing collapse regions.
 
 ---
 
-# 4. Modeling Assumptions
+## 4.2 Differential Stability Map
 
-SFR-BR makes the following explicit assumptions:
+Compares Cheap vs Robust:
 
-1. Deterministic execution (fixed seeds).
-2. Log-linear KV recomputation cost.
-3. Fixed detection probability `p`.
-4. Single failure model (latent KV corruption).
-5. Hard cost cap models infrastructure-level termination.
-6. No real GPU simulation — abstract hardware constraint vector.
+- Green → Robust expands stability
+- Red → Robust shrinks stability
+- Gray → Equal stability
 
-These assumptions are deliberate to preserve determinism and interpretability.
+This identifies crossover regions.
 
 ---
 
-# 5. Architecture
+## 4.3 Stability Boundary Extraction
 
-## 5.1 Core Components
-
-### RecoveryExecutor
-- Executes bounded recovery
-- Enforces cost accounting
-- Injects latent corruption
-- Applies detection lag
-- Enforces hard cap
-
-### Hardware Constraint Vector (HCV)
-Encodes:
-- VRAM limit
-- KV eviction cost
-- Batch penalty
-- Rate limit penalty
-- Hard cost cap
-
-### CostSimulator
-- Charges action cost
-- Charges KV recomputation cost
-- Tracks total cost
-- Enforces cap violation
-
-### KVCacheState
-Models:
-- Latent corruption
-- Deterministic detection delay
-- Log-linear recomputation cost
-
-### CostState (Elastic Budget Signal)
-Provides agents with:
-- Used budget ratio
-- Last action cost
-- Hard cap reference
-
----
-
-# 6. Experimental Design
-
-## 6.1 Stability Phase Sweep
-
-We sweep over:
-
-- Context Depth: D ∈ {50, 100, 200, 400, 800, 1200, 1600, 2000}
-- Hard Cap: C ∈ {300, 500, 800, 1200, 2000, 3000, 5000}
-
-Each grid point is evaluated for:
-
-- Cheap Agent
-- Robust Agent
-
-Result: Stability Surface.
-
----
-
-## 6.2 Differential Stability Map
-
-We compute:
-
-- Regions where Robust expands stability
-- Regions where Robust shrinks stability
-- Regions of equality
-
-This yields a phase map of robustness impact.
-
----
-
-## 6.3 Boundary Extraction
-
-For each hard cap C:
-
-We compute:
+For each cap:
 
 ```
-Max Stable Depth D*
+Max Stable Depth
 ```
 
-Separately for:
-
-- Cheap Agent
-- Robust Agent
-
-This defines empirical collapse boundaries.
+Produces empirical collapse curves.
 
 ---
 
-# 7. Theoretical Stability Condition
+# 5. Theoretical Stability Condition
 
-We derive a sufficient condition for stability:
+We derive a sufficient stability inequality:
 
 ```
-cₐ · D + k · (D + 1/p) · log(D + 1/p) < C
+c_a · D + k · (D + 1/p) · log(D + 1/p) < C
 ```
 
 Where:
 
-- First term models action cost growth
-- Second term models KV recomputation cost
-- `1/p` captures expected detection delay
+- D = Context depth
+- C = Hard cost cap
+- c_a = Action cost coefficient
+- k = KV recompute coefficient
+- p = Detection probability
 
 A numerical solver estimates theoretical collapse depth.
 
-Empirical boundaries are compared against this predicted bound.
+Empirical boundaries are compared against predicted collapse depth.
 
 ---
 
-# 8. Empirical Findings
+# 6. Experimental Results
 
-From final stability sweep:
+Final stability sweep:
 
 - Total grid points: 56
 - Cheap stable points: 6
@@ -205,80 +197,81 @@ From final stability sweep:
 - Cheap stability ratio: 10.7%
 - Robust stability ratio: 57.1%
 - Net stability expansion: +26 regions
-- Robust shrink regions: 0
 
-Observation:
+Key finding:
 
-Robust recovery significantly enlarges the stability region under bounded compute in this configuration.
+Robustness significantly enlarges the stability region under bounded compute in this configuration.
 
 ---
 
-# 9. Determinism & Reproducibility
+# 7. Determinism & Reproducibility
 
 SFR-BR ensures:
 
-- Fixed random seeds
 - Deterministic detection delay
-- Explicit cost charging
-- No black-box API calls
-- Replayable execution traces
+- Explicit hardware cap enforcement
+- Fixed experiment grids
+- No external API calls
+- Fully replayable execution
 
-All phase diagrams are reproducible.
+All figures are reproducible via:
 
----
-
-# 10. Limitations
-
-SFR-BR does NOT currently model:
-
-- Multi-GPU contention
-- Non-linear SRV cascades
-- Speculative execution masking
-- Heterogeneous hardware bandwidth differences
-- Multiple simultaneous failure types
-
-The system is intentionally constrained to preserve clarity and determinism.
+```
+python main.py
+```
 
 ---
 
-# 11. Development Evolution (Sprint Log Summary)
+# 8. Development Evolution (12 Structured Sprints)
 
-The system evolved through:
+SFR-BR evolved through structured iterations:
 
-- Sprint 1–3: Bounded recovery executor
-- Sprint 4: Semantic guardrails
-- Sprint 5–6: Hardware-aware cost modeling
-- Sprint 7: Results framework
-- Sprint 8:
-  - Elastic budget signal
-  - Latent KV corruption
-  - Deterministic detection lag
-  - Context phase sweep
-  - Stability surface
-  - Boundary extraction
-  - Theoretical validation
+1. Deterministic executor
+2. Hardware constraint modeling
+3. Cost simulation integration
+4. Latent KV corruption model
+5. Detection lag modeling
+6. Collapse boundary sweeps
+7. Context phase transition mapping
+8. Differential stability comparison
+9. Formal stability metric extraction
+10. Boundary curve extraction
+11. Theoretical inequality derivation
+12. Empirical-theoretical validation overlay
 
-Sprint 8 marks architectural freeze.
-
-No additional modeling layers were introduced after stability boundary validation.
+These iterations refined the system into a coherent stability benchmark.
 
 ---
 
-# 12. Final Contribution
+# 9. Project Identity
 
-SFR-BR provides:
+SFR-BR is:
 
-- A deterministic stability phase diagram
-- Differential robustness analysis
-- Empirical collapse boundaries
-- A derived theoretical stability inequality
-- Theory–experiment boundary validation
+- A benchmark for stateful recovery under bounded compute
+- A deterministic systems framework
+- A stability phase analysis engine
+- A theoretical + empirical validation artifact
 
-The framework formalizes:
+It is not merely a recovery simulator.
 
-> When does robustness enlarge stability — and when does bounded compute induce collapse?
+It is a stability mapping system for bounded AI recovery.
 
 ---
+
+# 10. Conclusion
+
+SFR-BR formalizes:
+
+- When recovery policies remain stable
+- When bounded compute induces collapse
+- How robustness shifts stability boundaries
+- How empirical boundaries compare to theoretical predictions
+
+It provides a reproducible foundation for studying stability under constrained recovery.
+
+---
+
+
 
 
 
