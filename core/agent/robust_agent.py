@@ -1,51 +1,30 @@
-# agent/robust_agent.py
-# Sprint 8.5 — Behavioral Coupling
+# core/agent/robust_agent.py
 
-from core.agent.actions import Action, ActionType
+from core.agent.base_agent import BaseAgent
 
 
-class RobustAgent:
-    """
-    Robust agent with infrastructure-aware behavioral coupling.
+class RobustAgent(BaseAgent):
 
-    Modes:
-    - Clean Mode
-    - Latent Corruption Mode (undetected)
-    - Detected Corruption Mode (defensive containment)
-    - Budget-Aware Mode (elastic degradation)
-    """
+    def __init__(self):
+        super().__init__()
+        self.step_count = 0
+        self.trigger_verification = False
 
+    # -----------------------------------------
+    # Periodic Verification Logic
+    # -----------------------------------------
     def act(self, state, cost_state=None):
 
-        kv = getattr(state, "kv_cache", None)
+        self.step_count += 1
 
-        # -----------------------------
-        # 1️⃣ Budget-aware degradation
-        # -----------------------------
-        if cost_state and cost_state.used_budget_ratio > 0.9:
-            # Near hard cap → freeze expansion
-            return Action(ActionType.NOOP)
+        # Every 5 steps → trigger verification overhead
+        if self.step_count % 5 == 0:
+            self.trigger_verification = True
+        else:
+            self.trigger_verification = False
 
-        # -----------------------------
-        # 2️⃣ If KV exists
-        # -----------------------------
-        if kv:
-
-            # Clean Mode
-            if not kv.poisoned:
-                return Action(ActionType.PLAN_EXPAND)
-
-            # Latent Corruption (not yet detected)
-            if kv.poisoned and not kv.detected:
-                # Overconfident expansion → future collapse
-                return Action(ActionType.PLAN_EXPAND)
-
-            # Detected Corruption
-            if kv.poisoned and kv.detected:
-                # Defensive containment mode
-                # Avoid expansion explosion
-                return Action(ActionType.MEMORY_READ)
-
-        # Fallback
-        return Action(ActionType.PLAN_EXPAND)
-
+        # Delegate actual decision logic to BaseAgent
+        if cost_state is not None:
+            return super().act(state, cost_state)
+        else:
+            return super().act(state)

@@ -137,6 +137,13 @@ for point in metrics["crossover_points"]:
 
 
 print("\nSFR-BR Final Stability Analysis Complete.")
+# ============================================
+# ULTRA-TIGHT CAP INVERSION SEARCH
+# ============================================
+
+from experiments.stability_inversion import run_inversion_sweep
+
+run_inversion_sweep()
 
 
 

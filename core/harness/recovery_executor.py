@@ -1,5 +1,6 @@
-# harness/recovery_executor.py
+# core/harness/recovery_executor.py
 # Sprint 8.4 — Deterministic Detection Lag + Elastic Budget
+# + Robust Periodic Verification Overhead
 
 from core.agent.actions import Action, ActionType
 from core.judge.stub_judge import StubSemanticJudge
@@ -57,7 +58,7 @@ class RecoveryExecutor:
             last_action_cost=self.cost_simulator.last_action_cost,
         )
 
-        # 5️⃣ Agent action (support both signatures)
+        # 5️⃣ Agent action
         try:
             action = self.agent.act(self.state, cost_state)
         except TypeError:
@@ -73,17 +74,32 @@ class RecoveryExecutor:
             self.failed_due_to_hard_cap = True
             raise RuntimeError("RECOVERY_FAILED_HARD_CAP")
 
-        # 7️⃣ Apply action
+        # 🔥 7️⃣ Periodic Verification Overhead (Robust Only)
+        if hasattr(self.agent, "trigger_verification"):
+            if self.agent.trigger_verification:
+                if hasattr(self.state, "kv_cache"):
+
+                    self.cost_simulator.charge_kv_recompute(
+                        self.state.kv_cache
+                    )
+
+                    if self.cost_simulator.exceeded_hard_cap():
+                        self.failed_due_to_hard_cap = True
+                        raise RuntimeError(
+                            "RECOVERY_FAILED_VERIFICATION_OVERHEAD"
+                        )
+
+        # 8️⃣ Apply action
         action.apply(self.state)
 
-        # 8️⃣ KV logic
+        # 9️⃣ KV logic
         if hasattr(self.state, "kv_cache"):
 
             # Context growth
             if action.action_type == ActionType.PLAN_EXPAND:
                 self.state.kv_cache.expand(32)
 
-            # Recompute if detected
+            # Recompute if detected poison
             if self.state.kv_cache.poisoned and self.state.kv_cache.detected:
 
                 self.cost_simulator.charge_kv_recompute(
@@ -98,7 +114,7 @@ class RecoveryExecutor:
                         "RECOVERY_FAILED_KV_CACHE_OVERFLOW"
                     )
 
-        # 9️⃣ Semantic guardrail
+        # 🔟 Semantic guardrail
         if self.clean_snapshot and self.semantic_judge:
             verdict = self.semantic_judge.compare(
                 clean_state=self.clean_snapshot._state,

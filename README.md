@@ -1,64 +1,81 @@
-# SFR-BR  
+# SFR-BR
 ## Stability of Stateful Recovery under Bounded Resources
 
 SFR-BR is a deterministic systems framework for analyzing the stability of stateful AI recovery under bounded hardware constraints.
 
-It models how recovery policies behave when compute, memory, and cost budgets are limited — and identifies phase transitions where robustness shifts from beneficial to destabilizing.
+It models how recovery policies behave when compute, memory, and cost budgets are limited — and identifies nonlinear phase transitions where recovery shifts from stable execution to infrastructure collapse.
 
 ---
 
 # 🔍 Research Question
 
-> Under bounded compute, does robustness enlarge the stability region — or destabilize the system?
+Under bounded compute, when does recovery succeed before infrastructure collapse — and when do resource limits induce failure?
 
-SFR-BR answers this through:
-
-- Deterministic recovery execution
-- Hardware-aware cost accounting
-- Latent corruption modeling
-- Detection lag enforcement
-- Stability phase sweeps
-- Theoretical boundary derivation
+SFR-BR reframes recovery as a resource-bounded dynamical system rather than a purely logical robustness problem.
 
 ---
 
-# 🧠 Core Components
+# 🧠 Conceptual Overview
 
-- **RecoveryExecutor** — bounded recovery execution engine  
-- **Hardware Constraint Vector (HCV)** — cost + infrastructure model  
-- **CostSimulator** — explicit cost accounting  
-- **Latent KV-cache corruption model**  
-- **Deterministic detection delay**  
-- **Stability phase experiment framework**  
-- **Theoretical stability inequality solver**
+Modern AI agents operate with persistent internal state (e.g., KV-cache memory).  
+When silent corruption occurs:
+
+1. Corruption propagates undetected.
+2. Detection occurs probabilistically.
+3. Recovery triggers recomputation.
+4. Recompute cost grows nonlinearly.
+5. Hard infrastructure cap may be exceeded.
+6. System collapses if cost ≥ cap.
+
+Recovery stability therefore depends on:
+
+- Corruption depth
+- Detection delay
+- Nonlinear recomputation growth
+- Hard cost constraints
+
+---
+
+# 🧩 Core Components
+
+- RecoveryExecutor — bounded recovery execution engine
+- Hardware Constraint Vector (HCV) — explicit hard cost cap model
+- CostSimulator — cumulative nonlinear cost accounting
+- Latent KV-cache corruption model
+- Geometric detection delay process
+- Stability phase experiment framework
+- Theoretical stability inequality solver
 
 All experiments are deterministic and reproducible.
 
 ---
 
-# 📊 Stability Phase Diagram
+# 📊 Stability Phase Experiment
 
-We sweep:
+We sweep across:
 
-- Context Depth (D)
+- Corruption Depth (D)
 - Hard Cost Cap (C)
+- Detection Probability (p)
 
 Each grid point is classified as:
 
 - Stable
-- HardCap Failure
+- Infrastructure Collapse
 
----
-
-## 🔵 Stability Surface — Robust Agent
-
-![Robust Stability Surface](figures/stability_surface_Robust.png)
+This produces empirical stability phase diagrams.
 
 ---
 
 ## 🟡 Stability Surface — Cheap Agent
 
 ![Cheap Stability Surface](figures/stability_surface_Cheap.png)
+
+---
+
+## 🔵 Stability Surface — Robust Agent
+
+![Robust Stability Surface](figures/stability_surface_Robust.png)
 
 ---
 
@@ -69,44 +86,55 @@ Regions where robustness expands or shrinks stability:
 ![Differential Stability Map](figures/differential_stability.png)
 
 Legend:
-
-- Green → Robust expands stability  
-- Red → Robust shrinks stability  
-- Gray → Equal stability  
+- Green → Robust expands stability
+- Red → Robust shrinks stability
+- Gray → Equal stability
 
 ---
 
-# 📈 Stability Boundary Curves
+# 📈 Empirical vs Theoretical Stability Boundary
 
-Maximum stable depth per hardware cap:
+Maximum stable corruption depth per hardware cap:
 
 ![Stability Boundary](figures/stability_boundary.png)
 
 This figure overlays:
+- Empirical Cheap boundary
+- Empirical Robust boundary
+- Theoretical predicted boundary
 
-- Empirical Cheap boundary  
-- Empirical Robust boundary  
-- Theoretical predicted boundary  
+Empirical collapse aligns qualitatively with the derived nonlinear inequality.
 
 ---
 
 # 🧮 Theoretical Stability Condition
 
-We derive a sufficient stability inequality:
+Total recovery cost is modeled as:
 
-```
-c_a · D + k · (D + 1/p) · log(D + 1/p) < C
-```
+c_a · D + k · f(D)
+
+Stable recovery requires:
+
+c_a · D + k · f(D) < C
 
 Where:
 
-- `D` = Context depth  
-- `C` = Hard cost cap  
-- `c_a` = Action cost coefficient  
-- `k` = KV recompute coefficient  
-- `p` = Detection probability  
+- D = Corruption depth
+- C = Hard cost cap
+- c_a = Linear action cost coefficient
+- k · f(D) = Nonlinear recomputation growth
 
-A numerical solver estimates theoretical collapse depth and compares it against empirical boundaries.
+Infrastructure collapse occurs when:
+
+c_a · D + k · f(D) ≥ C
+
+Expected stability under probabilistic detection:
+
+c_a · (1/p) + k · f(1/p) < C
+
+Where p is detection probability.
+
+A numerical solver estimates theoretical collapse depth and compares it with empirical phase boundaries.
 
 ---
 
@@ -114,64 +142,69 @@ A numerical solver estimates theoretical collapse depth and compares it against 
 
 From the final stability sweep:
 
-- Total grid points: **56**
-- Cheap stable points: **6**
-- Robust stable points: **32**
-- Cheap stability ratio: **10.7%**
-- Robust stability ratio: **57.1%**
-- Net stability expansion: **+26 regions**
+- Total grid points evaluated: 56
+- Cheap stable regions: 3
+- Robust stable regions: 0
+- Stability inversion observed under moderate detection probabilities
+- Empirical collapse boundary matches nonlinear theoretical prediction
 
-Robustness significantly enlarges the stability region under bounded compute in this configuration.
+These results demonstrate that recovery stability is governed by bounded nonlinear cost accumulation rather than logical robustness alone.
+
+---
+
+# 🔁 Stability Inversion
+
+Under specific detection probabilities and cost caps:
+
+A cheaper recovery strategy remains stable  
+while a robustness-aware strategy collapses due to additional overhead.
+
+This inversion arises from nonlinear recomputation scaling interacting with hard cost constraints.
+
+Robustness is therefore conditional under bounded compute.
 
 ---
 
 # 🏗️ Project Structure
 
-```
 SFR_BR_PROJECT/
-│
-├── agent/        # Agent policies (Cheap, Robust)
-├── harness/      # Execution engine & cost modeling
-├── experiments/  # Stability phase experiments
-├── analysis/     # Boundary extraction & theory solver
-├── plots/        # Publication-quality plot generators
-├── config/       # System parameters
-├── figures/      # Generated figures (PNG + PDF)
-├── main.py       # Final experiment runner
-└── README.md
-```
+
+agent/        → Agent policies (Cheap, Robust)  
+harness/      → Execution engine & cost modeling  
+experiments/  → Stability phase sweeps  
+analysis/     → Boundary extraction & inequality solver  
+plots/        → Plot generation utilities  
+config/       → System parameters  
+figures/      → Generated figures (PNG + PDF)  
+main.py       → Final experiment runner  
+README.md  
 
 ---
 
 # ▶️ Running the Project
 
-### Install dependencies
+Install dependencies:
 
-```bash
 pip install -r requirements.txt
-```
 
-### Run final experiment
+Run the experiment:
 
-```bash
 python main.py
-```
 
-Figures will be generated and saved inside:
+Generated figures will be saved in:
 
-```
 figures/
-```
 
 ---
 
-# 🔁 Determinism & Reproducibility
+# 🔒 Determinism & Reproducibility
 
 - Fixed random seed
-- Deterministic detection delay
-- Explicit hardware cap enforcement
-- No black-box API calls
-- Fully replayable experiments
+- Deterministic corruption injection
+- Explicit hard cap enforcement
+- Controlled probabilistic detection model
+- No external API calls
+- Fully replayable parameter sweeps
 
 ---
 
@@ -179,9 +212,17 @@ figures/
 
 SFR-BR provides:
 
-- A stability phase diagram for stateful recovery  
-- Differential stability comparison (Cheap vs Robust)  
-- Empirical collapse boundaries  
-- Theoretical boundary validation  
+- A deterministic benchmark for stateful recovery under bounded compute
+- Empirical stability phase diagrams
+- Nonlinear collapse boundary extraction
+- Stability inversion identification
+- Analytical stability condition validation
 
-This framework formalizes when robustness improves stability — and when bounded compute induces collapse.
+This framework formalizes recovery as a bounded-resource phase transition problem and exposes structural limits of robustness under infrastructure constraints.
+
+---
+
+# 👩‍💻 Author
+
+Amulya Biradar  
+CSE (AI & ML)

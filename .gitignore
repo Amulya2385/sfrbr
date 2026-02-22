@@ -1,35 +1,19 @@
-# Python
+# Python cache
 _pycache_/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+*.pyd
 
-# Virtual environments
-venv/
-env/
-.venv/
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-
-# Logs
-*.log
+# VSCode
+.vscode/
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# VS Code
-.vscode/
-
 # Jupyter
 .ipynb_checkpoints/
 
-# Matplotlib cache
-.matplotlib/
-
-# Temporary files
+# OneDrive temp files
 *.tmp
-*.bak
 

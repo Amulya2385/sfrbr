@@ -1,5 +1,5 @@
-# harness/cost_simulator.py
-# Sprint 8.4.2 — Collapse Boundary Model
+# core/harness/cost_simulator.py
+# Sprint 8.4.2 — Collapse Boundary Model (Nonlinear Upgrade)
 
 import math
 
@@ -19,7 +19,7 @@ class CostSimulator:
         self.last_action_cost = cost
 
     # -----------------------------------
-    # KV Recompute (Log-Linear Scaling)
+    # KV Recompute (Upgraded Nonlinear Scaling)
     # -----------------------------------
     def charge_kv_recompute(self, kv_cache):
 
@@ -28,12 +28,20 @@ class CostSimulator:
         if tokens <= 1:
             return
 
-        # 🔥 Log-linear scaling instead of quadratic
-        recompute_cost = tokens * math.log(tokens)
+        # Original log-linear term
+        base_term = tokens * math.log(tokens)
+
+        # Added quadratic pressure term
+        alpha = 0.002  # sensitivity coefficient (safe starting value)
+        quadratic_term = alpha * (tokens ** 2)
+
+        recompute_cost = base_term + quadratic_term
 
         self.total_cost += recompute_cost
         self.last_action_cost = recompute_cost
 
+    # -----------------------------------
+    # Hard Cap Check
     # -----------------------------------
     def exceeded_hard_cap(self):
         if self.hcv.hard_cost_cap is None:
@@ -41,16 +49,7 @@ class CostSimulator:
         return self.total_cost > self.hcv.hard_cost_cap
 
     # -----------------------------------
+    # Return total cost
+    # -----------------------------------
     def compute_cost(self):
         return self.total_cost
-
-
-
-
-
-
-
-
-
-
-
