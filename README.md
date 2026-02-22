@@ -35,7 +35,8 @@ SFR-BR reframes recovery as a resource-constrained stability problem rather than
 
 # 🧠 Conceptual Model
 
-Stateful AI agents maintain persistent internal context (e.g., KV-cache memory).  
+Stateful AI agents maintain persistent internal context (e.g., KV-cache memory).
+
 When silent corruption occurs:
 
 1. Corruption propagates undetected.
@@ -184,37 +185,37 @@ These results demonstrate that recovery stability is governed by bounded nonline
 
 ---
 
-#  🏗️ Project Structure
+# 🏗️ Project Structure
 
 SFR_BR_PROJECT/
 
-├── analysis/                 # Stability analysis & theoretical boundary solver
-├── archive/                  # Archived experimental components
-├── core/                     # Core execution system
-│   ├── agent/                # Cheap & Robust agent policies
-│   ├── harness/              # Recovery executor, cost simulator, HCV
-│   ├── judge/                # Semantic validation logic
+├── analysis/                 # Stability analysis & theoretical boundary solver  
+├── archive/                  # Archived experimental components  
+├── core/                     # Core execution system  
+│   ├── agent/                # Cheap & Robust agent policies  
+│   ├── harness/              # Recovery executor, cost simulator, HCV  
+│   ├── judge/                # Semantic validation logic  
 │
-├── experiments/              # Stability phase & inversion sweeps
-│   ├── stability_phase.py
-│   ├── stability_inversion.py
+├── experiments/              # Stability phase & inversion sweeps  
+│   ├── stability_phase.py  
+│   ├── stability_inversion.py  
 │
-├── figures/                  # Generated figures (PNG + PDF)
-│   ├── stability_surface_Cheap.png
-│   ├── stability_surface_Robust.png
-│   ├── differential_stability.png
-│   ├── stability_boundary.png
+├── figures/                  # Generated figures (PNG + PDF)  
+│   ├── stability_surface_Cheap.png  
+│   ├── stability_surface_Robust.png  
+│   ├── differential_stability.png  
+│   ├── stability_boundary.png  
 │
-├── plots/                    # Plot generation utilities
-├── results/                  # Experimental result collectors
-├── tasks/                    # Task definitions
-├── tests/                    # Testing modules
+├── plots/                    # Plot generation utilities  
+├── results/                  # Experimental result collectors  
+├── tasks/                    # Task definitions  
+├── tests/                    # Testing modules  
 │
-├── main.py                   # Master experiment runner
-├── requirements.txt
-├── LICENSE
-├── README.md
-└── DOCUMENTATION.md
+├── main.py                   # Master experiment runner  
+├── requirements.txt  
+├── LICENSE  
+├── README.md  
+└── DOCUMENTATION.md  
 
 ---
 
