@@ -184,47 +184,37 @@ These results demonstrate that recovery stability is governed by bounded nonline
 
 ---
 
-# 🏗️ Project Structure
+#  🏗️ Project Structure
 
 SFR_BR_PROJECT/
 
-├── agent/  
-│   ├── base_agent.py  
-│   ├── robust_agent.py  
+├── analysis/                 # Stability analysis & theoretical boundary solver
+├── archive/                  # Archived experimental components
+├── core/                     # Core execution system
+│   ├── agent/                # Cheap & Robust agent policies
+│   ├── harness/              # Recovery executor, cost simulator, HCV
+│   ├── judge/                # Semantic validation logic
 │
-├── core/  
-│   ├── harness/  
-│   │   ├── recovery_executor.py  
-│   │   ├── cost_simulator.py  
-│   │   ├── hcv.py  
-│   │   ├── kv_cache.py  
-│   │
-│   ├── judge/  
+├── experiments/              # Stability phase & inversion sweeps
+│   ├── stability_phase.py
+│   ├── stability_inversion.py
 │
-├── experiments/  
-│   ├── stability_phase.py  
-│   ├── stability_inversion.py  
+├── figures/                  # Generated figures (PNG + PDF)
+│   ├── stability_surface_Cheap.png
+│   ├── stability_surface_Robust.png
+│   ├── differential_stability.png
+│   ├── stability_boundary.png
 │
-├── analysis/  
-│   ├── stability_analysis.py  
-│   ├── theoretical_boundary_solver.py  
+├── plots/                    # Plot generation utilities
+├── results/                  # Experimental result collectors
+├── tasks/                    # Task definitions
+├── tests/                    # Testing modules
 │
-├── plots/  
-│   ├── stability_surface.py  
-│   ├── differential_stability.py  
-│   ├── stability_boundary_plot.py  
-│
-├── config/  
-│
-├── figures/  
-│   ├── stability_surface_Cheap.png  
-│   ├── stability_surface_Robust.png  
-│   ├── differential_stability.png  
-│   ├── stability_boundary.png  
-│
-├── main.py  
-├── README.md  
-└── DOCUMENTATION.md  
+├── main.py                   # Master experiment runner
+├── requirements.txt
+├── LICENSE
+├── README.md
+└── DOCUMENTATION.md
 
 ---
 
